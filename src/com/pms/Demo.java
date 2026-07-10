@@ -49,7 +49,7 @@ public class Demo {
         webProj.add_requirement(req1);
         req1.mark_fulfilled();
 
-        Assignment asg1 = new Assignment("A001", "Lead Developer", new Date());
+        Assignment asg1 = new Assignment("A001", "Lead Developer", new Date(), pm);
         webProj.assign_employee(asg1);
 
         // 6. Test Tracker / Stages

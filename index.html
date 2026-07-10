@@ -1,84 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMS - Project Management Dashboard</title>
-    <meta name="description" content="Dashboard for managing Clients and Projects natively on the web.">
+    <title>PMS — Project Management System</title>
+    <meta name="description" content="Premium Project Management System Dashboard">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
+    <div class="app">
+
+        <!-- ── Sidebar ── -->
         <aside class="sidebar">
-            <div class="logo">
-                <h2>📈 PMS Dashboard</h2>
+            <div class="brand">
+                <span class="brand-logo">⚡</span>
+                <div>
+                    <div class="brand-name">PMS</div>
+                    <div class="brand-sub" id="company-name-side">Loading…</div>
+                </div>
             </div>
-            <nav>
-                <div class="nav-item active" data-target="dashboard">Overview</div>
-                <div class="nav-item" data-target="projects">Projects</div>
-                <div class="nav-item" data-target="clients">Clients</div>
+
+            <nav class="nav">
+                <button class="nav-btn active" data-view="overview">
+                    <span class="nav-icon">📊</span> Overview
+                </button>
+                <button class="nav-btn" data-view="projects">
+                    <span class="nav-icon">🚀</span> Projects
+                </button>
+                <button class="nav-btn" data-view="clients">
+                    <span class="nav-icon">🤝</span> Clients
+                </button>
+                <button class="nav-btn" data-view="employees">
+                    <span class="nav-icon">👥</span> Employees
+                </button>
+                <button class="nav-btn" data-view="assignments">
+                    <span class="nav-icon">📋</span> Assignments
+                </button>
+                <button class="nav-btn" data-view="add">
+                    <span class="nav-icon">➕</span> Add New
+                </button>
             </nav>
+
+            <div class="sidebar-footer">
+                <div class="avatar">A</div>
+                <div>
+                    <div class="avatar-name">Admin</div>
+                    <div class="avatar-role">System Manager</div>
+                </div>
+            </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header>
-                <h1>Welcome back, Admin</h1>
-                <div class="user-profile">Company: <span id="company-name">Acme Corp</span></div>
-            </header>
+        <!-- ── Main ── -->
+        <main class="main">
 
-            <!-- Dashboard Overiew Tab -->
-            <div id="dashboard" class="content-section active">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total Projects</h3>
-                        <div class="stat-value" id="stat-projects">0</div>
+            <!-- OVERVIEW -->
+            <section id="view-overview" class="view active">
+                <div class="page-header">
+                    <h1>Overview</h1>
+                    <span class="badge" id="company-name-badge">Global Tech Corp</span>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">🚀</div>
+                        <div class="stat-info">
+                            <div class="stat-val" id="stat-projects">0</div>
+                            <div class="stat-label">Total Projects</div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>Total Clients</h3>
-                        <div class="stat-value" id="stat-clients">0</div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">🤝</div>
+                        <div class="stat-info">
+                            <div class="stat-val" id="stat-clients">0</div>
+                            <div class="stat-label">Clients</div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>Active Employees</h3>
-                        <div class="stat-value" id="stat-employees">0</div>
+                    <div class="stat-card amber">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-val" id="stat-employees">0</div>
+                            <div class="stat-label">Employees</div>
+                        </div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <div class="stat-val" id="stat-assignments">0</div>
+                            <div class="stat-label">Assignments</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="quick-actions">
-                    <h2>Quick Create Project</h2>
-                    <form id="create-project-form" class="glass-form">
-                        <div class="input-group">
-                            <label>Project Name</label>
-                            <input type="text" id="proj-name" required placeholder="e.g. Server Migration">
-                        </div>
-                        <div class="input-group">
-                            <label>Budget ($)</label>
-                            <input type="number" id="proj-budget" required placeholder="10000">
-                        </div>
-                        <div class="input-group">
-                            <label>Project Type</label>
-                            <select id="proj-type">
-                                <option value="Web">Web Development</option>
-                                <option value="Mobile">Mobile Application</option>
-                                <option value="Data">Data Science</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Attach to Client</label>
-                            <select id="proj-client"></select>
-                        </div>
-                        <button type="submit" class="btn-primary">Launch Project</button>
-                    </form>
+                <div class="cards-row">
+                    <div class="info-card">
+                        <h3>Recent Projects</h3>
+                        <div id="recent-projects-list" class="mini-list"></div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Team Members</h3>
+                        <div id="recent-employees-list" class="mini-list"></div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Projects Tab -->
-            <div id="projects" class="content-section">
-                <h2>Active Projects</h2>
-                <div class="table-container">
-                    <table>
+            <!-- PROJECTS -->
+            <section id="view-projects" class="view">
+                <div class="page-header">
+                    <h1>Projects</h1>
+                    <button class="btn btn-blue" onclick="showView('add')">+ New Project</button>
+                </div>
+                <div class="table-wrap">
+                    <table id="projects-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -86,32 +121,192 @@
                                 <th>Type</th>
                                 <th>Budget</th>
                                 <th>Stage</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="projects-table-body"></tbody>
+                        <tbody id="projects-body"></tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
-            <!-- Clients Tab -->
-            <div id="clients" class="content-section">
-                <h2>Registered Clients</h2>
-                <div class="table-container">
-                    <table>
+            <!-- CLIENTS -->
+            <section id="view-clients" class="view">
+                <div class="page-header">
+                    <h1>Clients</h1>
+                    <button class="btn btn-green" onclick="showView('add')">+ Onboard Client</button>
+                </div>
+                <div class="table-wrap">
+                    <table id="clients-table">
                         <thead>
                             <tr>
-                                <th>Client ID</th>
-                                <th>Contact Name</th>
+                                <th>ID</th>
+                                <th>Name</th>
                                 <th>Organization</th>
                                 <th>Email</th>
+                                <th>Projects</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="clients-table-body"></tbody>
+                        <tbody id="clients-body"></tbody>
                     </table>
                 </div>
-            </div>
+            </section>
+
+            <!-- EMPLOYEES -->
+            <section id="view-employees" class="view">
+                <div class="page-header">
+                    <h1>Employees</h1>
+                    <button class="btn btn-amber" onclick="showView('add')">+ Hire Employee</button>
+                </div>
+                <div class="table-wrap">
+                    <table id="employees-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Designation</th>
+                                <th>Skills</th>
+                                <th>Projects</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employees-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ASSIGNMENTS -->
+            <section id="view-assignments" class="view">
+                <div class="page-header">
+                    <h1>Assignments</h1>
+                    <span class="muted">Employee → Project relationships</span>
+                </div>
+                <div class="table-wrap">
+                    <table id="assignments-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Role</th>
+                                <th>Project</th>
+                                <th>Stage</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assignments-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ADD NEW -->
+            <section id="view-add" class="view">
+                <div class="page-header">
+                    <h1>Add New</h1>
+                </div>
+
+                <div class="forms-grid">
+
+                    <!-- Project Form -->
+                    <div class="form-card blue-border">
+                        <h3>🚀 Register Project</h3>
+                        <form id="form-project" autocomplete="off">
+                            <label>Project Name
+                                <input type="text" id="pName" placeholder="e.g. Acme Portal" required>
+                            </label>
+                            <label>Budget ($)
+                                <input type="number" id="pBudget" placeholder="50000" required>
+                            </label>
+                            <label>Type
+                                <select id="pType">
+                                    <option value="Web">Web Development</option>
+                                    <option value="Mobile">Mobile App</option>
+                                    <option value="Data">Data Science</option>
+                                </select>
+                            </label>
+                            <label>Attach to Client
+                                <select id="pClient"></select>
+                            </label>
+                            <button type="submit" class="btn btn-blue full">Register Project</button>
+                        </form>
+                    </div>
+
+                    <!-- Client Form -->
+                    <div class="form-card green-border">
+                        <h3>🤝 Onboard Client</h3>
+                        <form id="form-client" autocomplete="off">
+                            <label>Full Name
+                                <input type="text" id="cName" placeholder="John Doe" required>
+                            </label>
+                            <label>Organization
+                                <input type="text" id="cOrg" placeholder="Acme Inc.">
+                            </label>
+                            <label>Email
+                                <input type="email" id="cEmail" placeholder="john@acme.com">
+                            </label>
+                            <button type="submit" class="btn btn-green full">Onboard Client</button>
+                        </form>
+                    </div>
+
+                    <!-- Employee Form -->
+                    <div class="form-card amber-border">
+                        <h3>👤 Hire Employee</h3>
+                        <form id="form-employee" autocomplete="off">
+                            <label>Full Name
+                                <input type="text" id="eName" placeholder="Alice Johnson" required>
+                            </label>
+                            <label>Designation
+                                <input type="text" id="eDes" placeholder="Senior Developer">
+                            </label>
+                            <button type="submit" class="btn btn-amber full">Hire Employee</button>
+                        </form>
+                    </div>
+
+                </div>
+            </section>
+
         </main>
     </div>
+
+    <!-- ── Modals ── -->
+
+    <!-- Assign Employee Modal -->
+    <div id="modal-assign" class="modal-overlay" style="display:none">
+        <div class="modal">
+            <h3>📋 Assign Employee to Project</h3>
+            <input type="hidden" id="assign-emp-idx">
+            <label>Employee <input type="text" id="assign-emp-name" readonly></label>
+            <label>Select Project
+                <select id="assign-project-select"></select>
+            </label>
+            <label>Role
+                <input type="text" id="assign-role" placeholder="e.g. Lead Designer">
+            </label>
+            <div class="modal-actions">
+                <button class="btn btn-blue" onclick="confirmAssign()">Assign</button>
+                <button class="btn btn-ghost" onclick="closeModal('modal-assign')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Skill Modal -->
+    <div id="modal-skill" class="modal-overlay" style="display:none">
+        <div class="modal">
+            <h3>🎯 Add Skill</h3>
+            <input type="hidden" id="skill-emp-idx">
+            <label>Employee <input type="text" id="skill-emp-name" readonly></label>
+            <label>New Skill
+                <input type="text" id="skill-input" placeholder="e.g. React, Python, AWS">
+            </label>
+            <div class="modal-actions">
+                <button class="btn btn-amber" onclick="confirmSkill()">Add Skill</button>
+                <button class="btn btn-ghost" onclick="closeModal('modal-skill')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
     <script src="app.js"></script>
 </body>
+
 </html>

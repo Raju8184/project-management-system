@@ -1,6 +1,5 @@
 package com.pms.models;
 
-import com.pms.Employee;
 import java.util.Date;
 
 public class Assignment {
