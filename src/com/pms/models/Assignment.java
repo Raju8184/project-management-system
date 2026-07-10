@@ -1,19 +1,21 @@
 package com.pms.models;
 
+import com.pms.Employee;
 import java.util.Date;
 
 public class Assignment {
     private String assignment_id;
     private String role;
     private Date assigned_date;
+    private Employee employee;
 
-    public Assignment(String assignment_id, String role, Date assigned_date) {
+    public Assignment(String assignment_id, String role, Date assigned_date, Employee employee) {
         this.assignment_id = assignment_id;
         this.role = role;
         this.assigned_date = assigned_date;
+        this.employee = employee;
     }
 
-    // Getters and Setters
     public String getAssignment_id() {
         return assignment_id;
     }
@@ -36,5 +38,13 @@ public class Assignment {
 
     public void setAssigned_date(Date assigned_date) {
         this.assigned_date = assigned_date;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
     }
 }

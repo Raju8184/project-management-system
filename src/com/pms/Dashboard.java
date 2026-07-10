@@ -22,7 +22,7 @@ public class Dashboard extends JFrame {
     public Dashboard(Company company) {
         this.company = company;
         setTitle("Project Management System Dashboard");
-        setSize(1000, 750);
+        setSize(900, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -31,7 +31,6 @@ public class Dashboard extends JFrame {
         } catch (Exception e) {
         }
 
-        // Header Title
         JLabel title = new JLabel("Company Dashboard: " + company.getName(), SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 20));
         title.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
@@ -63,11 +62,23 @@ public class Dashboard extends JFrame {
             }
         });
 
-        JButton refreshProjBtn = new JButton("Refresh Data");
-        refreshProjBtn.addActionListener(e -> refreshTables());
+        JButton deleteProjBtn = new JButton("Delete Project");
+        deleteProjBtn.setForeground(Color.RED);
+        deleteProjBtn.addActionListener(e -> {
+            int selected = projectTable.getSelectedRow();
+            if (selected != -1) {
+                company.getProjects().remove(selected);
+                refreshTables();
+            }
+        });
 
-        projectActionPanel.add(refreshProjBtn);
+        projectActionPanel.add(new JButton("Refresh Data") {
+            {
+                addActionListener(ev -> refreshTables());
+            }
+        });
         projectActionPanel.add(advanceStageBtn);
+        projectActionPanel.add(deleteProjBtn);
         projectPanel.add(projectActionPanel, BorderLayout.SOUTH);
         tabbedPane.addTab("Projects", projectPanel);
 
@@ -79,43 +90,97 @@ public class Dashboard extends JFrame {
         clientTable = new JTable(clientModel);
         clientTable.setRowHeight(25);
         clientPanel.add(new JScrollPane(clientTable), BorderLayout.CENTER);
+
+        JPanel clientActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton deleteClientBtn = new JButton("Delete Client");
+        deleteClientBtn.setForeground(Color.RED);
+        deleteClientBtn.addActionListener(e -> {
+            int selected = clientTable.getSelectedRow();
+            if (selected != -1) {
+                company.getClients().remove(selected);
+                refreshTables();
+            }
+        });
+        clientActionPanel.add(deleteClientBtn);
+        clientPanel.add(clientActionPanel, BorderLayout.SOUTH);
+
         tabbedPane.addTab("Clients", clientPanel);
 
         // 3. Employees Tab
         JPanel empPanel = new JPanel(new BorderLayout(10, 10));
         empPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        String[] empCols = { "Employee ID", "Name", "Designation", "Current Projects" };
+        String[] empCols = { "Employee ID", "Name", "Designation", "Assigned Projects" };
         employeeModel = new DefaultTableModel(empCols, 0);
         employeeTable = new JTable(employeeModel);
         employeeTable.setRowHeight(25);
         empPanel.add(new JScrollPane(employeeTable), BorderLayout.CENTER);
+
+        JPanel empActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton assignEmpBtn = new JButton("+ Assign to Project");
+        assignEmpBtn.addActionListener(e -> {
+            int selected = employeeTable.getSelectedRow();
+            if (selected != -1) {
+                Employee emp = company.getEmployees().get(selected);
+                if (company.getProjects().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "No projects exist yet! Register a project first.");
+                    return;
+                }
+                JComboBox<String> projBox = new JComboBox<>();
+                for (Project p : company.getProjects())
+                    projBox.addItem(p.getName());
+
+                JTextField roleField = new JTextField();
+                Object[] message = { "Select Target Project:", projBox, "Assign Role (e.g., Lead Dev):", roleField };
+
+                int option = JOptionPane.showConfirmDialog(this, message, "Assigning " + emp.getName(),
+                        JOptionPane.OK_CANCEL_OPTION);
+                if (option == JOptionPane.OK_OPTION) {
+                    Project selectedProj = company.getProjects().get(projBox.getSelectedIndex());
+                    selectedProj.assign_employee(new Assignment("A" + (selectedProj.getAssignments().size() + 1),
+                            roleField.getText(), new Date(), emp));
+                    refreshTables();
+                    JOptionPane.showMessageDialog(this, "Assignment created successfully!");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Select an Employee from the table to assign them.");
+            }
+        });
+
+        JButton deleteEmpBtn = new JButton("Fire Employee (Delete)");
+        deleteEmpBtn.setForeground(Color.RED);
+        deleteEmpBtn.addActionListener(e -> {
+            int selected = employeeTable.getSelectedRow();
+            if (selected != -1) {
+                company.getEmployees().remove(selected);
+                refreshTables();
+            }
+        });
+
+        empActionPanel.add(assignEmpBtn);
+        empActionPanel.add(deleteEmpBtn);
+        empPanel.add(empActionPanel, BorderLayout.SOUTH);
+
         tabbedPane.addTab("Employees", empPanel);
 
         // 4. Quick Action Tab
         JPanel actionPanelContainer = new JPanel(new BorderLayout());
-
-        // Increased GridLayout grid limit to fit Clients properly
         JPanel actionPanel = new JPanel(new GridLayout(12, 4, 15, 10));
         actionPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        // --- Column 1: Create Project & Client ---
+        // Create Project Section
         JLabel pTitle = new JLabel("--- Create New Project ---");
         pTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
         actionPanel.add(pTitle);
         actionPanel.add(new JLabel(""));
-
         actionPanel.add(new JLabel("New Project Name:"));
         JTextField pNameField = new JTextField();
         actionPanel.add(pNameField);
-
         actionPanel.add(new JLabel("Budget ($):"));
         JTextField pBudgetField = new JTextField();
         actionPanel.add(pBudgetField);
-
         actionPanel.add(new JLabel("Project Type:"));
         JComboBox<String> pTypeBox = new JComboBox<>(new String[] { "Web", "Mobile", "Data Science" });
         actionPanel.add(pTypeBox);
-
         JButton addProjectBtn = new JButton("Register Project");
         addProjectBtn.addActionListener(e -> {
             try {
@@ -141,28 +206,23 @@ public class Dashboard extends JFrame {
         });
         actionPanel.add(new JLabel(""));
         actionPanel.add(addProjectBtn);
-
-        // Divider
         actionPanel.add(new JLabel(""));
         actionPanel.add(new JLabel(""));
 
+        // Create Client Section
         JLabel cTitle = new JLabel("--- Onboard New Client ---");
         cTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
         actionPanel.add(cTitle);
         actionPanel.add(new JLabel(""));
-
         actionPanel.add(new JLabel("Client Full Name:"));
         JTextField cNameField = new JTextField();
         actionPanel.add(cNameField);
-
         actionPanel.add(new JLabel("Organization:"));
         JTextField cOrgField = new JTextField();
         actionPanel.add(cOrgField);
-
         actionPanel.add(new JLabel("Email Address:"));
         JTextField cEmailField = new JTextField();
         actionPanel.add(cEmailField);
-
         JButton addClientBtn = new JButton("Onboard Client");
         addClientBtn.addActionListener(e -> {
             if (!cNameField.getText().isEmpty()) {
@@ -175,23 +235,19 @@ public class Dashboard extends JFrame {
         actionPanel.add(new JLabel(""));
         actionPanel.add(addClientBtn);
 
-        // --- Hire Employee Section Below ---
-        JPanel empActionPanel = new JPanel(new GridLayout(4, 2, 10, 10));
-        empActionPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
-
+        // Hire Employee Section
+        JPanel empActionPanel2 = new JPanel(new GridLayout(4, 2, 10, 10));
+        empActionPanel2.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
         JLabel eTitle = new JLabel("--- Hire New Employee ---");
         eTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
-        empActionPanel.add(eTitle);
-        empActionPanel.add(new JLabel(""));
-
-        empActionPanel.add(new JLabel("Employee Name:"));
+        empActionPanel2.add(eTitle);
+        empActionPanel2.add(new JLabel(""));
+        empActionPanel2.add(new JLabel("Employee Name:"));
         JTextField eNameField = new JTextField();
-        empActionPanel.add(eNameField);
-
-        empActionPanel.add(new JLabel("Designation:"));
+        empActionPanel2.add(eNameField);
+        empActionPanel2.add(new JLabel("Designation:"));
         JTextField eDesField = new JTextField();
-        empActionPanel.add(eDesField);
-
+        empActionPanel2.add(eDesField);
         JButton addEmpBtn = new JButton("Hire Employee");
         addEmpBtn.addActionListener(e -> {
             if (!eNameField.getText().isEmpty()) {
@@ -201,14 +257,12 @@ public class Dashboard extends JFrame {
                 JOptionPane.showMessageDialog(this, "Employee Hired Successfully!");
             }
         });
-        empActionPanel.add(new JLabel(""));
-        empActionPanel.add(addEmpBtn);
+        empActionPanel2.add(new JLabel(""));
+        empActionPanel2.add(addEmpBtn);
 
-        // Assembly
         JPanel combinedPanel = new JPanel(new BorderLayout());
         combinedPanel.add(actionPanel, BorderLayout.NORTH);
-        combinedPanel.add(empActionPanel, BorderLayout.CENTER);
-
+        combinedPanel.add(empActionPanel2, BorderLayout.CENTER);
         actionPanelContainer.add(new JScrollPane(combinedPanel), BorderLayout.CENTER);
         tabbedPane.addTab("Quick Management", actionPanelContainer);
 
@@ -233,44 +287,36 @@ public class Dashboard extends JFrame {
 
         employeeModel.setRowCount(0);
         for (Employee e : company.getEmployees()) {
-            employeeModel.addRow(new Object[] { e.getEmployee_id(), e.getName(), e.getDesignation(), "0 Active" });
+            // Dynamically calculate how many projects this employee is actively assigned to
+            int activeProjects = 0;
+            for (Project p : company.getProjects()) {
+                for (Assignment a : p.getAssignments()) {
+                    if (a.getEmployee() != null && a.getEmployee().getEmployee_id().equals(e.getEmployee_id())) {
+                        activeProjects++;
+                    }
+                }
+            }
+            employeeModel.addRow(new Object[] { e.getEmployee_id(), e.getName(), e.getDesignation(),
+                    activeProjects + " Active Projects" });
         }
     }
 
     public static void main(String[] args) {
         Company comp = new Company("Global Tech");
 
-        // Massive Sample Data Population for a beautiful demo
-
-        // Clients
         Client c1 = new Client("C001", "Bob Smith", "bob@example.com", "Acme LLC");
-        Client c2 = new Client("C002", "Tony Stark", "stark@starkind.com", "Stark Industries");
-        Client c3 = new Client("C003", "Bruce Wayne", "wayne@enterprises.com", "Wayne Corp");
         comp.onboard_client(c1);
-        comp.onboard_client(c2);
-        comp.onboard_client(c3);
 
-        // Projects
         Project p1 = new WebDevelopmentProject("PRJ001", "Acme Website Rewrite", 25000, new Date());
-        Project p2 = new MobileAppProject("PRJ002", "Stark Security App", 120000, new Date(),
-                java.util.Arrays.asList("iOS"));
-        Project p3 = new DataScienceProject("PRJ003", "Gotham Predictor AI", 85000, new Date(), 50.0f);
-        Project p4 = new WebDevelopmentProject("PRJ004", "Employee Internal Portal", 15000, new Date());
-
         p1.advance_stage();
-        p1.advance_stage(); // Make it DEVELOPMENT
-        p2.advance_stage(); // Make it DESIGN
-
+        p1.advance_stage();
         comp.register_project(p1);
-        comp.register_project(p2);
-        comp.register_project(p3);
-        comp.register_project(p4);
 
-        // Employees
-        comp.hire_employee(new Employee("E001", "Alice Johnson", "Senior Designer"));
-        comp.hire_employee(new Employee("E002", "Mark Spencer", "Backend Engineer"));
-        comp.hire_employee(new Employee("E003", "Sarah Connor", "Data Scientist"));
-        comp.hire_employee(new Employee("E004", "James Bond", "Mobile Developer"));
+        Employee e1 = new Employee("E001", "Alice Johnson", "Senior Designer");
+        comp.hire_employee(e1);
+
+        // Link them with an Assignment
+        p1.assign_employee(new Assignment("A1", "Lead Designer", new Date(), e1));
 
         SwingUtilities.invokeLater(() -> {
             new Dashboard(comp).setVisible(true);
