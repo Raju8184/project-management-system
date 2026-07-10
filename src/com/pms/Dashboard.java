@@ -22,11 +22,10 @@ public class Dashboard extends JFrame {
     public Dashboard(Company company) {
         this.company = company;
         setTitle("Project Management System Dashboard");
-        setSize(900, 700);
+        setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Remove ALL hardcoded colors so it uses native OS rendering correctly!
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
@@ -40,7 +39,7 @@ public class Dashboard extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // 1. Projects Tab (Added Advance Stage feature per requirements)
+        // 1. Projects Tab
         JPanel projectPanel = new JPanel(new BorderLayout(10, 10));
         projectPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -95,10 +94,11 @@ public class Dashboard extends JFrame {
         // 4. Quick Action Tab
         JPanel actionPanelContainer = new JPanel(new BorderLayout());
 
-        JPanel actionPanel = new JPanel(new GridLayout(9, 2, 10, 15));
-        actionPanel.setBorder(BorderFactory.createEmptyBorder(30, 80, 50, 80));
+        // Increased GridLayout grid limit to fit Clients properly
+        JPanel actionPanel = new JPanel(new GridLayout(12, 4, 15, 10));
+        actionPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        // Create Project Section
+        // --- Column 1: Create Project & Client ---
         JLabel pTitle = new JLabel("--- Create New Project ---");
         pTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
         actionPanel.add(pTitle);
@@ -116,7 +116,7 @@ public class Dashboard extends JFrame {
         JComboBox<String> pTypeBox = new JComboBox<>(new String[] { "Web", "Mobile", "Data Science" });
         actionPanel.add(pTypeBox);
 
-        JButton addProjectBtn = new JButton("Create Project");
+        JButton addProjectBtn = new JButton("Register Project");
         addProjectBtn.addActionListener(e -> {
             try {
                 String name = pNameField.getText();
@@ -134,47 +134,85 @@ public class Dashboard extends JFrame {
                 }
                 company.register_project(p);
                 refreshTables();
-                JOptionPane.showMessageDialog(this, "Project Automatically Registered!");
+                JOptionPane.showMessageDialog(this, "Project Registered!");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Invalid Entry. Please check numbers.");
+                JOptionPane.showMessageDialog(this, "Invalid Entry.");
             }
         });
         actionPanel.add(new JLabel(""));
         actionPanel.add(addProjectBtn);
 
-        // Create Employee Section
-        JLabel eTitle = new JLabel("--- Hire New Employee ---");
-        eTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
-        actionPanel.add(eTitle);
+        // Divider
+        actionPanel.add(new JLabel(""));
         actionPanel.add(new JLabel(""));
 
-        actionPanel.add(new JLabel("Employee Name:"));
-        JTextField eNameField = new JTextField();
-        actionPanel.add(eNameField);
+        JLabel cTitle = new JLabel("--- Onboard New Client ---");
+        cTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
+        actionPanel.add(cTitle);
+        actionPanel.add(new JLabel(""));
 
-        actionPanel.add(new JLabel("Designation:"));
+        actionPanel.add(new JLabel("Client Full Name:"));
+        JTextField cNameField = new JTextField();
+        actionPanel.add(cNameField);
+
+        actionPanel.add(new JLabel("Organization:"));
+        JTextField cOrgField = new JTextField();
+        actionPanel.add(cOrgField);
+
+        actionPanel.add(new JLabel("Email Address:"));
+        JTextField cEmailField = new JTextField();
+        actionPanel.add(cEmailField);
+
+        JButton addClientBtn = new JButton("Onboard Client");
+        addClientBtn.addActionListener(e -> {
+            if (!cNameField.getText().isEmpty()) {
+                company.onboard_client(new Client("C00" + (company.getClients().size() + 1), cNameField.getText(),
+                        cEmailField.getText(), cOrgField.getText()));
+                refreshTables();
+                JOptionPane.showMessageDialog(this, "Client Onboarded!");
+            }
+        });
+        actionPanel.add(new JLabel(""));
+        actionPanel.add(addClientBtn);
+
+        // --- Hire Employee Section Below ---
+        JPanel empActionPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        empActionPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+
+        JLabel eTitle = new JLabel("--- Hire New Employee ---");
+        eTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
+        empActionPanel.add(eTitle);
+        empActionPanel.add(new JLabel(""));
+
+        empActionPanel.add(new JLabel("Employee Name:"));
+        JTextField eNameField = new JTextField();
+        empActionPanel.add(eNameField);
+
+        empActionPanel.add(new JLabel("Designation:"));
         JTextField eDesField = new JTextField();
-        actionPanel.add(eDesField);
+        empActionPanel.add(eDesField);
 
         JButton addEmpBtn = new JButton("Hire Employee");
         addEmpBtn.addActionListener(e -> {
-            String eName = eNameField.getText();
-            String eDes = eDesField.getText();
-            if (!eName.isEmpty() && !eDes.isEmpty()) {
-                Employee emp = new Employee("EMP" + (company.getEmployees().size() + 1), eName, eDes);
-                company.hire_employee(emp);
+            if (!eNameField.getText().isEmpty()) {
+                company.hire_employee(new Employee("EMP" + (company.getEmployees().size() + 1), eNameField.getText(),
+                        eDesField.getText()));
                 refreshTables();
                 JOptionPane.showMessageDialog(this, "Employee Hired Successfully!");
             }
         });
-        actionPanel.add(new JLabel(""));
-        actionPanel.add(addEmpBtn);
+        empActionPanel.add(new JLabel(""));
+        empActionPanel.add(addEmpBtn);
 
-        actionPanelContainer.add(actionPanel, BorderLayout.CENTER);
+        // Assembly
+        JPanel combinedPanel = new JPanel(new BorderLayout());
+        combinedPanel.add(actionPanel, BorderLayout.NORTH);
+        combinedPanel.add(empActionPanel, BorderLayout.CENTER);
+
+        actionPanelContainer.add(new JScrollPane(combinedPanel), BorderLayout.CENTER);
         tabbedPane.addTab("Quick Management", actionPanelContainer);
 
         add(tabbedPane, BorderLayout.CENTER);
-
         refreshTables();
     }
 
@@ -202,13 +240,37 @@ public class Dashboard extends JFrame {
     public static void main(String[] args) {
         Company comp = new Company("Global Tech");
 
-        Client c = new Client("C001", "Bob Smith", "bob@example.com", "Acme LLC");
-        comp.onboard_client(c);
-        Project p = new WebDevelopmentProject("PRJ001", "Acme Website Rewrite", 25000, new Date());
-        c.add_project(p);
-        comp.register_project(p);
+        // Massive Sample Data Population for a beautiful demo
+
+        // Clients
+        Client c1 = new Client("C001", "Bob Smith", "bob@example.com", "Acme LLC");
+        Client c2 = new Client("C002", "Tony Stark", "stark@starkind.com", "Stark Industries");
+        Client c3 = new Client("C003", "Bruce Wayne", "wayne@enterprises.com", "Wayne Corp");
+        comp.onboard_client(c1);
+        comp.onboard_client(c2);
+        comp.onboard_client(c3);
+
+        // Projects
+        Project p1 = new WebDevelopmentProject("PRJ001", "Acme Website Rewrite", 25000, new Date());
+        Project p2 = new MobileAppProject("PRJ002", "Stark Security App", 120000, new Date(),
+                java.util.Arrays.asList("iOS"));
+        Project p3 = new DataScienceProject("PRJ003", "Gotham Predictor AI", 85000, new Date(), 50.0f);
+        Project p4 = new WebDevelopmentProject("PRJ004", "Employee Internal Portal", 15000, new Date());
+
+        p1.advance_stage();
+        p1.advance_stage(); // Make it DEVELOPMENT
+        p2.advance_stage(); // Make it DESIGN
+
+        comp.register_project(p1);
+        comp.register_project(p2);
+        comp.register_project(p3);
+        comp.register_project(p4);
+
+        // Employees
         comp.hire_employee(new Employee("E001", "Alice Johnson", "Senior Designer"));
         comp.hire_employee(new Employee("E002", "Mark Spencer", "Backend Engineer"));
+        comp.hire_employee(new Employee("E003", "Sarah Connor", "Data Scientist"));
+        comp.hire_employee(new Employee("E004", "James Bond", "Mobile Developer"));
 
         SwingUtilities.invokeLater(() -> {
             new Dashboard(comp).setVisible(true);
