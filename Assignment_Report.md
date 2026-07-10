@@ -97,11 +97,5 @@ The system logic was heavily validated against a programmatic Unit Test suite (`
 
 === Test Results: 5/5 Passed ===
 ```
-*Screenshot equivalent represents clean terminal execution achieving 100% logic validation across polymorphism boundaries.*
-
-**Demo Outputs & GUI Dashboard:**
-![Demo Outputs](C:\Users\muyaz\OneDrive\Pictures\Screenshots\Screenshot 2026-07-11 112810.png)
-![GUI Application](C:/Users/muyaz/.gemini/antigravity/brain/tempmediaStorage/media__1783707680670.png)
-
 ## 5. GitHub Repository Link
 **https://github.com/Raju8184/project-management-system.git**
