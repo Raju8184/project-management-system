@@ -4,7 +4,6 @@ import com.pms.models.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.util.Date;
 
@@ -22,12 +21,12 @@ public class Dashboard extends JFrame {
 
     public Dashboard(Company company) {
         this.company = company;
-        setTitle("Project Management System Dashboard - Premium");
+        setTitle("Project Management System Dashboard");
         setSize(900, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        getContentPane().setBackground(new Color(240, 244, 248));
 
+        // Remove ALL hardcoded colors so it uses native OS rendering correctly!
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
@@ -35,55 +34,73 @@ public class Dashboard extends JFrame {
 
         // Header Title
         JLabel title = new JLabel("Company Dashboard: " + company.getName(), SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setForeground(new Color(44, 62, 80));
-        title.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        title.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
         add(title, BorderLayout.NORTH);
 
-        // Core Layout
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        tabbedPane.setBackground(Color.WHITE);
 
-        // 1. Projects Tab
-        JPanel projectPanel = createStyledPanel();
+        // 1. Projects Tab (Added Advance Stage feature per requirements)
+        JPanel projectPanel = new JPanel(new BorderLayout(10, 10));
+        projectPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         String[] projCols = { "Project ID", "Name", "Type", "Budget", "Current Stage" };
         projectModel = new DefaultTableModel(projCols, 0);
-        projectTable = createStyledTable(projectModel);
+        projectTable = new JTable(projectModel);
+        projectTable.setRowHeight(25);
         projectPanel.add(new JScrollPane(projectTable), BorderLayout.CENTER);
-        JButton refreshProjBtn = createStyledButton("↻ Refresh All Data");
+
+        JPanel projectActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton advanceStageBtn = new JButton("Advance Selected Project Stage");
+        advanceStageBtn.addActionListener(e -> {
+            int selected = projectTable.getSelectedRow();
+            if (selected != -1) {
+                Project p = company.getProjects().get(selected);
+                p.advance_stage();
+                refreshTables();
+                JOptionPane.showMessageDialog(this, "Project advanced to next stage!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a project from the table first.");
+            }
+        });
+
+        JButton refreshProjBtn = new JButton("Refresh Data");
         refreshProjBtn.addActionListener(e -> refreshTables());
-        projectPanel.add(refreshProjBtn, BorderLayout.SOUTH);
-        tabbedPane.addTab("🚀 Projects", projectPanel);
+
+        projectActionPanel.add(refreshProjBtn);
+        projectActionPanel.add(advanceStageBtn);
+        projectPanel.add(projectActionPanel, BorderLayout.SOUTH);
+        tabbedPane.addTab("Projects", projectPanel);
 
         // 2. Clients Tab
-        JPanel clientPanel = createStyledPanel();
+        JPanel clientPanel = new JPanel(new BorderLayout(10, 10));
+        clientPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         String[] clientCols = { "Client ID", "Full Name", "Organization", "Email" };
         clientModel = new DefaultTableModel(clientCols, 0);
-        clientTable = createStyledTable(clientModel);
+        clientTable = new JTable(clientModel);
+        clientTable.setRowHeight(25);
         clientPanel.add(new JScrollPane(clientTable), BorderLayout.CENTER);
-        tabbedPane.addTab("🤝 Clients", clientPanel);
+        tabbedPane.addTab("Clients", clientPanel);
 
-        // 3. Employees Tab (NEW)
-        JPanel empPanel = createStyledPanel();
+        // 3. Employees Tab
+        JPanel empPanel = new JPanel(new BorderLayout(10, 10));
+        empPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         String[] empCols = { "Employee ID", "Name", "Designation", "Current Projects" };
         employeeModel = new DefaultTableModel(empCols, 0);
-        employeeTable = createStyledTable(employeeModel);
+        employeeTable = new JTable(employeeModel);
+        employeeTable.setRowHeight(25);
         empPanel.add(new JScrollPane(employeeTable), BorderLayout.CENTER);
-        tabbedPane.addTab("👥 Employees", empPanel);
+        tabbedPane.addTab("Employees", empPanel);
 
         // 4. Quick Action Tab
         JPanel actionPanelContainer = new JPanel(new BorderLayout());
-        actionPanelContainer.setBackground(Color.WHITE);
 
         JPanel actionPanel = new JPanel(new GridLayout(9, 2, 10, 15));
-        actionPanel.setBackground(Color.WHITE);
         actionPanel.setBorder(BorderFactory.createEmptyBorder(30, 80, 50, 80));
 
         // Create Project Section
         JLabel pTitle = new JLabel("--- Create New Project ---");
-        pTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        pTitle.setForeground(new Color(41, 128, 185));
+        pTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
         actionPanel.add(pTitle);
         actionPanel.add(new JLabel(""));
 
@@ -99,7 +116,7 @@ public class Dashboard extends JFrame {
         JComboBox<String> pTypeBox = new JComboBox<>(new String[] { "Web", "Mobile", "Data Science" });
         actionPanel.add(pTypeBox);
 
-        JButton addProjectBtn = createStyledButton("Create Project");
+        JButton addProjectBtn = new JButton("Create Project");
         addProjectBtn.addActionListener(e -> {
             try {
                 String name = pNameField.getText();
@@ -117,9 +134,9 @@ public class Dashboard extends JFrame {
                 }
                 company.register_project(p);
                 refreshTables();
-                JOptionPane.showMessageDialog(this, "✅ Project Automatically Registered!");
+                JOptionPane.showMessageDialog(this, "Project Automatically Registered!");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "❌ Invalid Entry. Please check numbers.");
+                JOptionPane.showMessageDialog(this, "Invalid Entry. Please check numbers.");
             }
         });
         actionPanel.add(new JLabel(""));
@@ -127,8 +144,7 @@ public class Dashboard extends JFrame {
 
         // Create Employee Section
         JLabel eTitle = new JLabel("--- Hire New Employee ---");
-        eTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        eTitle.setForeground(new Color(39, 174, 96));
+        eTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
         actionPanel.add(eTitle);
         actionPanel.add(new JLabel(""));
 
@@ -140,7 +156,7 @@ public class Dashboard extends JFrame {
         JTextField eDesField = new JTextField();
         actionPanel.add(eDesField);
 
-        JButton addEmpBtn = createStyledButton("Hire Employee", new Color(39, 174, 96));
+        JButton addEmpBtn = new JButton("Hire Employee");
         addEmpBtn.addActionListener(e -> {
             String eName = eNameField.getText();
             String eDes = eDesField.getText();
@@ -148,58 +164,18 @@ public class Dashboard extends JFrame {
                 Employee emp = new Employee("EMP" + (company.getEmployees().size() + 1), eName, eDes);
                 company.hire_employee(emp);
                 refreshTables();
-                JOptionPane.showMessageDialog(this, "✅ Employee Hired Successfully!");
+                JOptionPane.showMessageDialog(this, "Employee Hired Successfully!");
             }
         });
         actionPanel.add(new JLabel(""));
         actionPanel.add(addEmpBtn);
 
         actionPanelContainer.add(actionPanel, BorderLayout.CENTER);
-        tabbedPane.addTab("⚡ Quick Management", actionPanelContainer);
+        tabbedPane.addTab("Quick Management", actionPanelContainer);
 
-        // Add tabs
         add(tabbedPane, BorderLayout.CENTER);
 
-        // Load data initially
         refreshTables();
-    }
-
-    private JPanel createStyledPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        return panel;
-    }
-
-    private JTable createStyledTable(DefaultTableModel model) {
-        JTable table = new JTable(model);
-        table.setRowHeight(30);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        table.setShowVerticalLines(false);
-        table.setGridColor(new Color(236, 240, 241));
-
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(new Color(41, 128, 185));
-        header.setForeground(Color.WHITE);
-        header.setReorderingAllowed(false);
-
-        return table;
-    }
-
-    private JButton createStyledButton(String text) {
-        return createStyledButton(text, new Color(41, 128, 185));
-    }
-
-    private JButton createStyledButton(String text, Color bg) {
-        JButton btn = new JButton(text);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setBackground(bg);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return btn;
     }
 
     private void refreshTables() {
@@ -226,7 +202,6 @@ public class Dashboard extends JFrame {
     public static void main(String[] args) {
         Company comp = new Company("Global Tech");
 
-        // Populate some sample data for visual test
         Client c = new Client("C001", "Bob Smith", "bob@example.com", "Acme LLC");
         comp.onboard_client(c);
         Project p = new WebDevelopmentProject("PRJ001", "Acme Website Rewrite", 25000, new Date());
